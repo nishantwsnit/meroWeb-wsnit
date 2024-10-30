@@ -1,0 +1,33 @@
+{
+    
+    "Category-r7igmfb7yreiljm3dxvkroipma-NONE":[
+        {
+            "PutRequest": {
+                "Item": {
+                    "categoryId": {"S": "001"},
+                    "directoryId": {"S": "dir123"},
+                    "name": {"S": "Category One"},
+                    "iconName": {"S": "icon1"},
+                    "iconType": {"S": "type1"},
+                    "description": {"S": "This is category one"},
+                    "isLocationBased": {"BOOL": true},
+                    "type": {"S": "MAIN"}
+                }
+            }
+        },
+        {
+            "PutRequest": {
+                "Item": {
+                    "categoryId": {"S": "002"},
+                    "directoryId": {"S": "dir123"},
+                    "name": {"S": "Category Two"},
+                    "iconName": {"S": "icon2"},
+                    "iconType": {"S": "type2"},
+                    "description": {"S": "This is category two"},
+                    "isLocationBased": {"BOOL": false},
+                    "type": {"S": "SUB"}
+                }
+            }
+        }
+    ]
+}  

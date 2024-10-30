@@ -1,6 +1,12 @@
+import "@aws-amplify/ui-react/styles.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./app.css";
+import "./globals.css";
+
+import ConfigureAmplifyClientSide from "@/component/configureAmplify";
+import ProviderTheme from "@/providers/themeProvider";
+import { MessageProvider } from "@/providers/toastContext";
+import StoreProvider from "./StoreProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -16,7 +22,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        <ConfigureAmplifyClientSide />
+        <ProviderTheme>
+          <StoreProvider>
+            <MessageProvider>{children}</MessageProvider>
+          </StoreProvider>
+        </ProviderTheme>
+      </body>
     </html>
   );
 }

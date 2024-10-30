@@ -1,17 +1,103 @@
 import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
 
 /*== STEP 1 ===============================================================
-The section below creates a Todo database table with a "content" field. Try
-adding a new "isDone" field as a boolean. The authorization rule below
-specifies that any user authenticated via an API key can "create", "read",
-"update", and "delete" any "Todo" records.
+The section below creates a Users, Categories, Posts database table with a multiple fields.
+The authorization rule below specifies that any authenticated user can "create", "read", "update", 
+and "delete" any Database table records.
 =========================================================================*/
 const schema = a.schema({
-  Todo: a
+  User: a
     .model({
-      content: a.string(),
+      userId: a.id().required(),
+      name: a.string().required(),
+      username: a.string().required(),
+      email: a.string().required(),
+      phoneNumber: a.string().required(),
+      profilePicture: a.string(),
+      isVerified: a.boolean(),
+      address: a.customType({
+        street: a.string(),
+        city: a.string(),
+        state: a.string(),
+        zipcode: a.string(),
+      }),
+      categories: a.string().array(),
+      onboardingDate: a.float(),
+      postId: a.id(),
+      posts: a.hasMany("Post", "userId"),
+      replyId: a.id(),
+      replies: a.hasMany("Reply", "userId"),
     })
-    .authorization((allow) => [allow.publicApiKey()]),
+    .identifier(["userId"])
+    .authorization((allow) => [allow.authenticated("userPools")]),
+
+  Category: a
+    .model({
+      categoryId: a.id().required(),
+      name: a.string().required(),
+      iconName: a.string().required(),
+      iconType: a.string().required(),
+      description: a.string().required(),
+      isLocationBased: a.boolean(),
+    })
+    .identifier(["categoryId"])
+    .authorization((allow) => [allow.authenticated("userPools")]),
+
+  Post: a
+    .model({
+      categoryId: a.id().required(),
+      content: a.string().required(),
+      location: a.customType({
+        city: a.string(),
+        state: a.string(),
+        zipcode: a.string(),
+      }),
+      likes: a.integer().required(),
+      userId: a.id().required(),
+      user: a.belongsTo("User", "userId"),
+      replyCount: a.integer().required(),
+    })
+    .secondaryIndexes((index) => [index("categoryId")])
+    .authorization((allow) => [allow.authenticated("userPools")]),
+
+  Reply: a
+    .model({
+      replyText: a.string().required(),
+      userId: a.id().required(),
+      user: a.belongsTo("User", "userId"),
+      postId: a.id().required(),
+    })
+    .secondaryIndexes((index) => [index("postId")])
+    .authorization((allow) => [allow.authenticated("userPools")]),
+
+  Directory: a
+    .model({
+      title: a.string().required(),
+      subTitle: a.string().required(),
+      imageUrl: a.string(),
+      isSubDirectory: a.boolean(),
+      parentDirectoryId: a.id(),
+    })
+    .authorization((allow) => [allow.authenticated("userPools")]),
+
+  DirectoryListing: a
+    .model({
+      title: a.string().required(),
+      description: a.string().required(),
+      address: a.string().required(),
+      url: a.string(),
+      phoneNumbers: a.string().array(),
+      socialMedia: a.customType({
+        facebook: a.string(),
+        instagram: a.string(),
+        twitter: a.string(),
+      }),
+      companyImage: a.string().required(),
+      images: a.string().array(),
+      directoryId: a.id().required(),
+    })
+    .secondaryIndexes((index) => [index("directoryId")])
+    .authorization((allow) => [allow.authenticated("userPools")]),
 });
 
 export type Schema = ClientSchema<typeof schema>;
@@ -19,10 +105,7 @@ export type Schema = ClientSchema<typeof schema>;
 export const data = defineData({
   schema,
   authorizationModes: {
-    defaultAuthorizationMode: "apiKey",
-    apiKeyAuthorizationMode: {
-      expiresInDays: 30,
-    },
+    defaultAuthorizationMode: "userPool",
   },
 });
 
